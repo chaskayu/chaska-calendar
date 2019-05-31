@@ -1,9 +1,9 @@
 /*
-Version: 2.0 (2019-04-02)
+Version: 2.1 (2019-05-31)
 usage:
 	$('.my-calendar').ChaskaCalendar();
 method:
-	last month: $('.my-calendar').ChaskaCalendar('last');
+	last month: $('.my-calendar').ChaskaCalendar('previous');
 	next month: $('.my-calendar').ChaskaCalendar('next');
 
 */
@@ -12,15 +12,15 @@ jQuery(function($) {
 	$.fn.ChaskaCalendar = function(method) {
 
 		switch (method) {
-			default: law_calendar.init(this); break;
-			case 'next': law_calendar.next(this); break;
-			case 'previous': law_calendar.previous(this); break;
-			case 'today': law_calendar.today(this); break;
+			default: chaska_calendar.init(this); break;
+			case 'next': chaska_calendar.next(this); break;
+			case 'previous': chaska_calendar.previous(this); break;
+			case 'today': chaska_calendar.today(this); break;
 		}
 
 	}
 
-	var law_calendar = {
+	var chaska_calendar = {
 
 		string: {
 			today: 'Go to Today',
@@ -81,7 +81,7 @@ jQuery(function($) {
 
 			// fill this month
 			var today = new Date();
-			law_calendar.fill_day_boxes(calendar, today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate());
+			chaska_calendar.fill_day_boxes(calendar, today.getFullYear()+'/'+(today.getMonth()+1)+'/'+today.getDate());
 
 		},
 
@@ -129,9 +129,7 @@ jQuery(function($) {
 			}
             calendar.find('.calendar-table td.daybox-'+(start-1)).addClass('last-day');
 			// fill next month
-			var next_month_date = new Date(date);
-			next_month_date.setMonth(next_month_date.getMonth() + 1);
-			next_month_date = new Date(next_month_date.getFullYear()+'/'+(next_month_date.getMonth()+1)+'/'+'1');
+			var next_month_date = chaska_calendar.get_next_month_first_day(date);
 			for (i=start; i<42; i++) {
 				today_for_check = new Date();
 				if ((next_month_date.getDate()+'/'+(next_month_date.getMonth()+1)+'/'+next_month_date.getFullYear()) == (today_for_check.getDate()+'/'+(today_for_check.getMonth()+1)+'/'+today_for_check.getFullYear())) {
@@ -149,10 +147,10 @@ jQuery(function($) {
 			start--;
 			for (i=0; i<=start; i++) {
 				today_for_check = new Date();
+                this_month_date.setDate(this_month_date.getDate() - 1)
 				if ((this_month_date.getDate()+'/'+(this_month_date.getMonth()+1)+'/'+this_month_date.getFullYear()) == (today_for_check.getDate()+'/'+(today_for_check.getMonth()+1)+'/'+today_for_check.getFullYear())) {
 					calendar.find('.calendar-table td.daybox-'+(start-i)).addClass('today');
 				}
-				this_month_date.setDate(this_month_date.getDate() - 1)
 				calendar.find('.calendar-table td.daybox-'+(start-i)).attr('data-date', this_month_date.getFullYear()+'-'+that.padLeft(this_month_date.getMonth()+1,2)+'-'+that.padLeft(this_month_date.getDate(),2));
 				calendar.find('.calendar-table td.daybox-'+(start-i)).addClass('last-month');
 				calendar.find('.calendar-table td.daybox-'+(start-i)+' .day-label').text(this_month_date.getDate());
@@ -164,8 +162,9 @@ jQuery(function($) {
 
 			var that = this;
 			var date = new Date(calendar.find('table.calendar-table').attr('data-current-date'));
-			date.setMonth(date.getMonth() - 1);
-			that.fill_day_boxes(calendar, date.getFullYear()+'/'+(date.getMonth()+1)+'/1');
+			var date_first_day = new Date(date.getFullYear()+'/'+(date.getMonth()+1)+'/1');
+            var last_month = chaska_calendar.addDays(date_first_day, -1);
+			that.fill_day_boxes(calendar, last_month.getFullYear()+'/'+(last_month.getMonth()+1)+'/1');
 
 		},
 
@@ -173,8 +172,9 @@ jQuery(function($) {
 
 			var that = this;
 			var date = new Date(calendar.find('table.calendar-table').attr('data-current-date'));
-			date.setMonth(date.getMonth() + 1);
-			that.fill_day_boxes(calendar, date.getFullYear()+'/'+(date.getMonth()+1)+'/1');
+            var date_first_day = new Date(date.getFullYear()+'/'+(date.getMonth()+1)+'/1');
+            var next_month = chaska_calendar.addDays(date_first_day, 31);
+			that.fill_day_boxes(calendar, next_month.getFullYear()+'/'+(next_month.getMonth()+1)+'/1');
 
 		},
 
@@ -195,8 +195,27 @@ jQuery(function($) {
 		},
 
 		padLeft: function(nr, n, str) {
+
 			return Array(n-String(nr).length+1).join(str||'0')+nr;
-		}
+
+		},
+
+        addDays: function(date, days) {
+            var result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        },
+
+        get_next_month_first_day: function(date) {
+
+            var today = new Date(date);
+            var this_month_first_day = new Date(today.getFullYear()+'/'+(today.getMonth()+1)+'/1');
+            var next_month = chaska_calendar.addDays(this_month_first_day, 31);
+            var next_month_first_day = new Date(next_month.getFullYear()+'/'+(next_month.getMonth()+1)+'/1');
+
+            return next_month_first_day;
+
+        }
 
 	}
 
