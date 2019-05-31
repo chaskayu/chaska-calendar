@@ -1,9 +1,10 @@
 /*
+Version: 2.0 (2019-04-02)
 usage:
-	$('.law-calendar').ChaskaCalendar();
+	$('.my-calendar').ChaskaCalendar();
 method:
-	last month: $('.law-calendar').ChaskaCalendar('last');
-	next month: $('.law-calendar').ChaskaCalendar('next');
+	last month: $('.my-calendar').ChaskaCalendar('last');
+	next month: $('.my-calendar').ChaskaCalendar('next');
 
 */
 jQuery(function($) {
@@ -87,6 +88,7 @@ jQuery(function($) {
 		clear_day_boxes: function(calendar) {
 			calendar.find('table.calendar-table .daybox').each(function() {
 				$(this)
+                    .removeClass('past-day')
                     .removeClass('today')
                     .removeClass('this-month')
                     .removeClass('last-month')
@@ -109,10 +111,14 @@ jQuery(function($) {
 			var this_month_date = new Date(today_date.getFullYear()+'/'+(today_date.getMonth()+1)+'/'+'1');
 			var start = this_month_date.getDay();
 			for (day=1; day<=31; day++) {
+				var this_date = this_month_date.getFullYear()+'/'+(this_month_date.getMonth()+1)+'/'+day;
 				if (that.check_valid_date(day+'/'+(this_month_date.getMonth()+1)+'/'+this_month_date.getFullYear())) {
 					today_for_check = new Date();
-					if ((day+'/'+(this_month_date.getMonth()+1)+'/'+this_month_date.getFullYear()) == (today_for_check.getDate()+'/'+(today_for_check.getMonth()+1)+'/'+today_for_check.getFullYear())) {
+					if (this_date == (today_for_check.getFullYear()+'/'+(today_for_check.getMonth()+1)+'/'+today_for_check.getDate())) {
 						calendar.find('.calendar-table td.daybox-'+start).addClass('today');
+					}
+					if (new Date(this_date+' 00:00:00') < new Date(today_for_check.getFullYear()+'/'+(today_for_check.getMonth()+1)+'/'+today_for_check.getDate()+' 00:00:00')) {
+						calendar.find('.calendar-table td.daybox-'+start).addClass('past-day');
 					}
 					calendar.find('.calendar-table td.daybox-'+start).attr('data-date', this_month_date.getFullYear()+'-'+that.padLeft(this_month_date.getMonth()+1,2)+'-'+that.padLeft(day,2));
 					calendar.find('.calendar-table td.daybox-'+start).addClass('this-month');
